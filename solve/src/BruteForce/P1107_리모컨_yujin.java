@@ -2,6 +2,9 @@ package BruteForce;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class P1107_리모컨_yujin {
 
@@ -26,10 +29,53 @@ public class P1107_리모컨_yujin {
     * 고장난 버튼을 빼고 최대한 근사치로 접근한 후에 플러스/마이너스를 해야겠다.
     * 하지만 근사치로 어떻게 접근해야하죠?
     *
+    * [반례 모음 참고]
+    * https://www.acmicpc.net/board/view/134925
+    *
     * */
 
     public static void main(String[] args) throws Exception {
         //BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedReader br = new BufferedReader(new FileReader(samplePath));
+        int targetNumber = Integer.parseInt(br.readLine());
+        boolean[] buttons = new boolean[10]; // 사용 가능한 버튼은 true
+        Arrays.fill(buttons, true);
+
+        int brokenButtonCount = Integer.parseInt(br.readLine());
+        int[] brokenButtons = new int[brokenButtonCount];
+        if (brokenButtonCount > 0) {
+            String[] brokenButtonsString = br.readLine().split(" ");
+            for (int i = 0; i < brokenButtons.length; i++) {
+                int brokenButtonIdx = Integer.parseInt(brokenButtonsString[i]);
+                buttons[brokenButtonIdx] = false;
+            }
+        }
+
+        int minTapCount = getMinTapCount(buttons, targetNumber);
+        System.out.println(minTapCount);
+
+    }
+
+    public static int getMinTapCount(boolean[] buttons, int targetNumber) {
+        int currentChannel = 100;
+        int minTapCount = 1000000;
+
+        // 1~1000000 만들 수 있는 숫자
+        for(int i = 0; i < 1000001; i++){
+            String[] iString = Integer.toString(i).split("");
+            boolean tappable = true;
+            for(String s : iString){
+                int part = Integer.parseInt(s);
+                if(!buttons[part]){
+                    tappable = false;
+                }
+            }
+            if(tappable) {
+                minTapCount = Math.min(minTapCount, targetNumber - i >= 0 ? (targetNumber - i) + iString.length : (i - targetNumber) + iString.length);
+            }
+        }
+
+        minTapCount = Math.min(minTapCount, targetNumber - currentChannel >= 0 ? targetNumber - currentChannel : currentChannel - targetNumber);
+        return minTapCount;
     }
 }
